@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}<title>Login</title>{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row main">
+        <div class="main-login main-center">
+            <h4 style="text-align: center;"><b>Login Form</h4>
+            <form class="form" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="cols-sm-2 control-label">Email</label>
+                    <div class="cols-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
+                            <span class="form-control">
+                                {{form.username}}
+                            </span>
+                        </div>
+                    </div>
+                    {%if 'username' in errors%}
+                        <div class='alert alert-warning'>{{errors.username}}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="cols-sm-2 control-label">Password</label>
+                    <div class="cols-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                            <span class="form-control">
+                                {{form.password}}
+                            </span>
+                        </div>
+                    </div>
+                    {%if 'password' in errors%}
+                        <div class='alert alert-warning'>{{errors.password}}</div>
+                    {% endif %}
+                </div>
+                {%if 'general_error' in errors%}
+                    <div class='alert alert-warning'>{{errors.general_error}}</div>
+                {% endif %}
+                <div>
+                    <button class="btn btn-primary btn-lg btn-block signup-button" type="submit">
+                        Login Up
+                    </button>
+                </div>
+                <div class="text-center">
+                    <span class="txt1">
+                        Don’t have an account?
+                    </span>
+                    <a href='{% url "signup" %}'>
+                        Sign Up
+                    </a><br/>
+                    <span class="txt1">
+                        Forgot Password ?
+                    </span>
+                    <a href='{% url "reset_password" %}'>
+                        Reset Password
+                    </a><br/>
+                </div>
+            </form>
+        </div>
+    </div>
+  </div>
+{% endblock %}

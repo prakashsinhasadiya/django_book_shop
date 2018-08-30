@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}<title>Login</title>{% endblock %}
+
+{% block content %}
+<div class="limiter">
+    <div class="container-customstyle">
+      <div class="wrap-customstyle">
+            <span class="form-title-custom">
+                Welcome {{user.username}}
+            </span>
+            <div>
+                <div class="wrap-inputcustomstyle">
+                    <div class="form-bgbtn"></div>
+                    <a href='{% url "logout" %}'>
+                        <button class="form-btn">
+                            Logout
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <div>
+                <div class="wrap-inputcustomstyle">
+                    <div class="form-bgbtn"></div>
+                    <a href='{% url "update_profile" %}'>
+                        <button class="form-btns">
+                            Update Profiles         
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
