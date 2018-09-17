@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from model_utils.models import TimeStampedModel
+from slugger import AutoSlugField
 
 
 class UserProfile(TimeStampedModel):
@@ -26,5 +27,14 @@ class UserProfile(TimeStampedModel):
         ('M', 'Male'),
         ('F', 'Female'),
     )
-    profile_image = models.ImageField(upload_to = 'pictures')
+    profile_image = models.ImageField(upload_to = 'picture')
 
+class BookDetail(TimeStampedModel):
+
+    book_name = models.CharField(max_length=30)
+    auther_name = models.CharField(max_length=30)
+    book_details = models.CharField(max_length=300)
+    book_price = models.FloatField()
+    book_image = models.ImageField(upload_to='picture')
+    book_file =  models.FileField(upload_to='picture')
+    slug = AutoSlugField(populate_from='book_name',unique=True,blank=True,null=True)

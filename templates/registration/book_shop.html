@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+  
+  {% if objects %}
+    {% for object in objects %}
+    <a><img src="{{object.book_image.url}}" alt="bokk_image" height="75" width="75"/></a><br></br>
+    <span>{{object.book_name}}</sp
+    an><br></br>
+    <span>{{object.book_price}}</span>
+    <a href="{% url 'show_book' slug=instance.slug %}"> Show Book Details</a>
+    {% endfor %}
+      {% endif %}
+
+  <p><a href="{% url 'login' %}">Return to home</a></p>
+{% endblock %}

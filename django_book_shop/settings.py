@@ -118,6 +118,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+MEDIA_URL = '/static/picture/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/picture/')
+
 
 PROFILE_REDIRECT_URL = '/profile'
 LOGIN_REDIRECT_URL = '/login'

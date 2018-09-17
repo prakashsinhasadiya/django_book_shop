@@ -12,12 +12,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.template.loader import render_to_string
 from django.http import Http404
-from .forms import LoginForm, SignupForm,ResetPasswordForm,ConfirmPasswordForm,ProfileForm
-from .models import UserProfile
+from .forms import LoginForm, SignupForm, ResetPasswordForm, ConfirmPasswordForm, ProfileForm
+
+from django.core.files.storage import FileSystemStorage
+from .models import UserProfile,BookDetail
 import uuid
 from datetime import datetime
 import pytz
-
 
 
 # Get redirect url from settings file or else redirect to admin page.
@@ -57,7 +58,8 @@ class Login(View):
             return redirect(profile_redirect_url)
         error = {'general_error': "Passwords don't match"}
         return render(request, 'registration/login.html', {'errors': error, 'form': form})
-        
+
+
 class Signup(View):
 
     def get(self, request):
@@ -95,7 +97,8 @@ class Signup(View):
                 user.mobile = mobile
                 user.gender = gender
                 user.save()
-                user_profile, user_profile_create = UserProfile.objects.get_or_create(user=user)
+                user_profile, user_profile_create = UserProfile.objects.get_or_create(
+                    user=user)
                 user_profile.mobile = mobile
                 # user_profile.gender = gender
                 user_profile.email = email
@@ -112,7 +115,6 @@ class Signup(View):
             return render(request, 'registration/signup.html', {'errors': error, 'form': signup_form})
 
 
-
 class Profile(View):
 
     def get(self, request):
@@ -123,15 +125,15 @@ class Profile(View):
             return redirect(login_redirect_url)
         return render(request, 'registration/profile.html')
 
+
 class ResetPassword(View):
 
-    def get(self,request):
+    def get(self, request):
         form = ResetPasswordForm()
         return render(request, 'registration/reset_password.html', {'form': form})
 
-    def  post(self,request):
+    def post(self, request):
 
-        import pdb; pdb.set_trace()
         reset_password_form = ResetPasswordForm(request.POST)
         if not reset_password_form.is_valid():
             return render(request, 'registration/reset_password.html', {'form': reset_password_form, 'errors': reset_password_form.errors})
@@ -150,9 +152,9 @@ class ResetPassword(View):
             'user': user[0],
             'url': url,
         })
-        res = send_mail('Password Reset', message, settings.FROM_EMAIL, [user[0].email])
+        res = send_mail('Password Reset', message,
+                        settings.FROM_EMAIL, [user[0].email])
         return render(request, 'registration/reset_email_sent.html')
-
 
 
 class ChangePassword(View):
@@ -167,7 +169,6 @@ class ChangePassword(View):
         if not token:
             raise Http404('Page not found.')
         token_obj = PasswordResetTokens.objects.filter(token=token)
-        import pdb; pdb.set_trace()
         if not token_obj:
             raise Http404('Fake token supplied.')
         # tz = pytz.timezone("UTC")
@@ -185,7 +186,6 @@ class ChangePassword(View):
             raise Http404('Tocken not found.')
         if not form.is_valid():
             return render(request, 'registration/set_password.html', {'form': form, 'token': token, 'errors': form.errors})
-        import pdb; pdb.set_trace()
         token_obj = PasswordResetTokens.objects.filter(token=token)
         if not token_obj:
             raise Http404('Fake token supplied.')
@@ -198,35 +198,61 @@ class ChangePassword(View):
 
 
 class UpdateProfile(View):
-    
-    def get(self,request):
+
+    def get(self, request):
+        import pdb
+        pdb.set_trace()
         if not request.user.is_authenticated:
             return redirect(login_redirect_url)
         form = ProfileForm()
-        profile_form = ProfileForm(request.POST or None, initial={'mobile':request.user.userprofile.mobile,'first_name':request.user.userprofile.first_name,'last_name':request.user.userprofile.last_name,'email':request.user.userprofile.email})
+        profile_form = ProfileForm(request.POST or None, initial={
+                                   'mobile': request.user.userprofile.mobile, 'first_name': request.user.userprofile.first_name, 'last_name': request.user.userprofile.last_name, 'email': request.user.userprofile.email})
         return render(request, 'registration/update_profile.html', {'form': profile_form})
 
-    def post(self,request):
+    def post(self, request):
 
         profile_form = ProfileForm(request.POST, request.FILES)
         if not profile_form.is_valid():
             return render(request, 'registration/update_profile.html', {'errors': profile_form.errors, 'form': profile_form})
-        mobile = profile_form.cleaned_data.get('mobile')    
-        first_name = profile_form.cleaned_data.get('first_name')    
-        last_name = profile_form.cleaned_data.get('last_name')    
-        email = profile_form.cleaned_data.get('email')    
-        import pdb; pdb.set_trace()
-        profile_image= profile_form.cleaned_data.get('profile_image')    
-        # gender = profile_form.cleaned_data.get('gender')    
-        user_update_profile, user_update_profile_create = UserProfile.objects.get_or_create(user=request.user)
+        mobile = profile_form.cleaned_data.get('mobile')
+        first_name = profile_form.cleaned_data.get('first_name')
+        last_name = profile_form.cleaned_data.get('last_name')
+        email = profile_form.cleaned_data.get('email')
+        myfile = request.FILES['myfile']
+        fs = FileSystemStorage()
+        filename = fs.save(myfile.name, myfile)
+        uploaded_file_url = fs.url(filename)
+        profile_image = profile_form.cleaned_data.get('profile_image')
+        # gender = profile_form.cleaned_data.get('gender')
+        user_update_profile, user_update_profile_create = UserProfile.objects.get_or_create(
+            user=request.user)
         user_update_profile.mobile = mobile
         user_update_profile.first_name = first_name
         user_update_profile.last_name = last_name
         user_update_profile.email = email
-        user_update_profile.profile_image = profile_image
+        user_update_profile.profile_image = filename
         user_update_profile.save()
-        return redirect(profile_redirect_url)
+        import pdb; pdb.set_trace()
+        user_profile_url = request.user.userprofile.profile_image.url
+        return render(request, 'registration/simple_upload.html', {
+            'uploaded_file_url': user_profile_url
+        })
+
+class BookShop(View):
+
+    def get(self,request):
+        objects = BookDetail.objects.filter()
+        import pdb; pdb.set_trace()
+        return render(request, 'registration/book_shop.html', {
+            'objects': objects
+        })
 
 def logoutuser(request):
     logout(request)
     return redirect(login_redirect_url)
+
+
+class BookDetails(View):
+
+    def get(self,request,slug):
+        import pdb; pdb.set_trace()
