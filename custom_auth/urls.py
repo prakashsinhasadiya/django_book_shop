@@ -18,5 +18,5 @@ urlpatterns = [
     url(r'^update_profiles/$',UpdateProfile.as_view(),name="update_profile"),
     url(r'^logout/$',logoutuser,name="logout"),
     url(r'^book_shop/$',BookShop.as_view(),name="book_shop"),
-    url(r'^shop/(?P<slug>[\w-]+)/book_detail/$',BookDetails.as_view() ,name='show_book'),
+    url(r'^shop/(?P<slug>[\w-]+)/book_detail/$', BookDetails.as_view(), name='show_book'),
 ]	

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}<title>Reset Password</title>{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row main">
+        <div class="main-login main-center">
+            <h4 style="text-align: center;"><b></h4>
+            <form class="form" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="cols-sm-2 control-label">Email has been sent pleach check your email nad reset your password</label>
+                    <div class="cols-sm-10">
+                     <a href='{% url "login" %}'>
+                        Home
+                    </a><br/>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

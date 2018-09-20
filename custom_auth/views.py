@@ -8,14 +8,14 @@ from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.conf import settings
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.template.loader import render_to_string
 from django.http import Http404
-from .forms import LoginForm, SignupForm, ResetPasswordForm, ConfirmPasswordForm, ProfileForm
-
+from custom_auth.forms import LoginForm, SignupForm,ChangePasswordForm, ResetPasswordForm, ConfirmPasswordForm, ProfileForm
 from django.core.files.storage import FileSystemStorage
-from .models import UserProfile,BookDetail
+from custom_auth.models import UserProfile,BookDetail,PasswordResetTokens
 import uuid
 from datetime import datetime
 import pytz
@@ -54,6 +54,7 @@ class Login(View):
             return render(request, 'registration/login.html', {'errors': error, 'form': form})
 
         if user.check_password(password):
+            import pdb; pdb.set_trace()
             login(request, user)
             return redirect(profile_redirect_url)
         error = {'general_error': "Passwords don't match"}
@@ -133,7 +134,7 @@ class ResetPassword(View):
         return render(request, 'registration/reset_password.html', {'form': form})
 
     def post(self, request):
-
+        import pdb; pdb.set_trace()
         reset_password_form = ResetPasswordForm(request.POST)
         if not reset_password_form.is_valid():
             return render(request, 'registration/reset_password.html', {'form': reset_password_form, 'errors': reset_password_form.errors})
@@ -164,36 +165,28 @@ class ChangePassword(View):
         Check if authorized to reset password.
         Return reset password template
         """
-        form = ConfirmPasswordForm()
-        token = request.GET.get('token')
-        if not token:
-            raise Http404('Page not found.')
-        token_obj = PasswordResetTokens.objects.filter(token=token)
-        if not token_obj:
-            raise Http404('Fake token supplied.')
+        form = ChangePasswordForm()
         # tz = pytz.timezone("UTC")
         # if tz.localize(datetime.now(), is_dst=None) > token_obj[0].expired_time:
         #     raise Http404('Token Expired. Try again')
-        return render(request, 'registration/set_password.html', {'form': form, 'token': token})
+        return render(request, 'registration/set_password.html', {'form': form})
 
     def post(self, request):
         """
         Save new password and redirect to Login
         """
-        form = ConfirmPasswordForm(request.POST)
-        token = request.GET.get('token')
-        if not token:
-            raise Http404('Tocken not found.')
+        form = ChangePasswordForm(request.POST)
         if not form.is_valid():
-            return render(request, 'registration/set_password.html', {'form': form, 'token': token, 'errors': form.errors})
-        token_obj = PasswordResetTokens.objects.filter(token=token)
-        if not token_obj:
-            raise Http404('Fake token supplied.')
-        password_1 = form.cleaned_data.get('password_1')
-        user = token_obj[0].user
+            import pdb; pdb.set_trace()
+            return render(request, 'registration/set_password.html', {'form': form,'errors': form.errors})
+        user = User.objects.get(email=request.user.email)
+        if not user.check_password(form.data.get('old_password')):
+            error = {'general_error': 'User old password not match.'}
+            return render(request, 'registration/set_password.html', {'form': form,'errors': error})
+        password_1 = form.cleaned_data.get('new_password')
+        user = request.user
         user.set_password(password_1)
         user.save()
-        token_obj[0].delete()
         return HttpResponseRedirect(reverse('login'))
 
 
@@ -242,7 +235,6 @@ class BookShop(View):
 
     def get(self,request):
         objects = BookDetail.objects.filter()
-        import pdb; pdb.set_trace()
         return render(request, 'registration/book_shop.html', {
             'objects': objects
         })

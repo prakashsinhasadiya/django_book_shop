@@ -1,10 +1,7 @@
 
-from datetime import datetime, timedelta
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from model_utils.models import TimeStampedModel
 from slugger import AutoSlugField
 
@@ -35,6 +32,10 @@ class BookDetail(TimeStampedModel):
     auther_name = models.CharField(max_length=30)
     book_details = models.CharField(max_length=300)
     book_price = models.FloatField()
-    book_image = models.ImageField(upload_to='picture')
+    book_image = models.ImageField(upload_to='picture')     
     book_file =  models.FileField(upload_to='picture')
     slug = AutoSlugField(populate_from='book_name',unique=True,blank=True,null=True)
+
+class PasswordResetTokens(TimeStampedModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_reset_token')
+    token = models.CharField("Tocken ID", max_length=60, null=False, blank=False)

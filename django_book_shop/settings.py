@@ -68,6 +68,21 @@ TEMPLATES = [
     },
 ]
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Host for sending e-mail.
+
+# Port for sending e-mail.
+
+# Optional SMTP authentication information for EMAIL_HOST.
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'prakash.asadiya21@gmail.com'  # Set original email
+EMAIL_HOST_PASSWORD = 'hatibapu@@)!#'  # Set original password
+FROM_EMAIL = 'prakash.asadiya21@gmail.com'  # Set original email
+
+
 WSGI_APPLICATION = 'django_book_shop.wsgi.application'
 
 

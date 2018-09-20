@@ -1,18 +1,38 @@
+
 {% extends 'base.html' %}
 
 {% load static %}
-
 {% block content %}
-  
-  {% if objects %}
-    {% for object in objects %}
-    <a><img src="{{object.book_image.url}}" alt="bokk_image" height="75" width="75"/></a><br></br>
-    <span>{{object.book_name}}</sp
-    an><br></br>
-    <span>{{object.book_price}}</span>
-    <a href="{% url 'show_book' slug=instance.slug %}"> Show Book Details</a>
-    {% endfor %}
-      {% endif %}
+    <div class="container-fluid">
+        <div class="row" style="margin-top: 6%">
+            <div class="col-sm-8 blog-main">
+                <div class="blog-post">
+                    <div class="row">
+                        {% if objects %}
+                            {% for object in objects %}
+                                <div class="col-md-4">
+                                    <div class="thumbnail">
+                                        <img src="{% if object.book_image %} {{ object.book_image.url }} {% else %} {%static 'image/logo.png' %} {% endif %}" alt="..." style="height: 130px; width: auto">
+                                        <div class="caption">
+                                            <h3 class="text-center">
+                                                <a href="{% url 'show_book' slug=object.slug %}">{{ object.book_name }}</a>
+                                            </h3>
+                                            <p class="text-center">Price :  {{ object.book_price }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
   <p><a href="{% url 'login' %}">Return to home</a></p>
 {% endblock %}
+
+
+
+
+

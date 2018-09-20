@@ -70,3 +70,17 @@ class ConfirmPasswordForm(forms.Form):
     #         message = "Passwords do not match"
     #         raise ValidationError(message)
     #     return email,password_2
+
+class ChangePasswordForm(forms.Form):
+
+    old_password = forms.CharField(max_length=30, widget=forms.PasswordInput())
+    new_password = forms.CharField(max_length=30, widget=forms.PasswordInput())
+    new_password1 = forms.CharField(max_length=30, widget=forms.PasswordInput())
+
+    def clean(self):
+        password_2 = self.cleaned_data.get('new_password')
+        password_1 = self.cleaned_data.get('new_password1')
+        if password_1 and password_2 and password_1 != password_2:
+            message = "Passwords do not match"
+            raise ValidationError(message)
+        return password_2
